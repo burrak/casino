@@ -1,0 +1,7 @@
+{block content}
+{if !$user->isLoggedIn()}
+{control loginForm}
+<a n:href="Login:Facebook">Přihlášení přes facebook</a>
+<a n:href="Register:">Registrace</a>
+{/if}
+{/block}

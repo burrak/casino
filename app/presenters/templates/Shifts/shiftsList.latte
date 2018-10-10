@@ -1,0 +1,139 @@
+{block content}
+{if $user->isAllowed('shifts', 'add')}
+    {control addShiftForm}
+{/if}
+<h2>Všechny směny</h2>
+
+<table>
+    <tr>
+        <th>
+            Datum
+        </th>
+        <th>
+            Čas
+        </th>
+        <th>
+            Pobočka
+        </th>
+        <th>
+            Počet
+        </th>
+        {if $user->isAllowed('shifts', 'add')}
+            <th>
+                Zapsáno
+            </th>
+        {/if}
+        {if $user->isAllowed('shifts', 'assign')}
+            <th>
+                Zbývá míst
+            </th>
+        {/if}
+        <th>
+            Akce
+        </th>
+    </tr>
+
+    {if $user->isAllowed('shifts', 'add')}
+        {foreach $shifts as $shift}           
+            <tr>
+                <td>
+                    {$shift->date|date:'%d.%m.%Y'}
+                </td>
+                <td>
+                    {$shift->time|date:'%H:%I'}
+                </td>
+                <td>
+                    {$shift->name}
+                </td>
+                <td>
+                    {if $shift->datetime > $now}
+                        {form edit}<input type="text" name="quant[{$shift->id}]" size="2" value="{$shift->quantity}"><input type="submit" value="Upravit počet">{/form}
+                    {/if}
+                    {if $shift->datetime < $now}
+                        Směnu již nelze editovat
+                    {/if}    
+                </td>
+                <td>
+                    {$shift->assigned}
+                </td>
+                <td>
+                    <a n:href="dealersOnShift $shift->id">Zobrazit dealery na směně</a> {if $shift->datetime > $now}| <a n:href="delete! $shift->id">Smazat směny</a>{/if}
+                </td>
+            </tr>
+        {/foreach}
+    {/if}
+
+    {if $user->isAllowed('shifts', 'assign')}
+        {foreach $shiftsAviable as $shift}
+            {if $shift->quantity-$shift->assigned > 0}
+                <tr>
+                    <td>
+                        {$shift->date|date:'%d.%m.%Y'}
+                    </td>
+                    <td>
+                        {$shift->time|date:'%H:%I'}
+                    </td>
+                    <td>
+                        {$shift->name}
+                    </td>
+                    <td>
+                        {$shift->quantity}   
+                    </td>
+                    <td>
+                        {$shift->quantity-$shift->assigned} 
+                    </td>
+                    <td>
+                        {if $shift->id_user == NULL}
+                            <a n:href="assign! $shift->id">Zapsat směnu</a>
+                        {else}
+                            Směnu již máte zapsanou
+                        {/if}
+                    </td>
+                </tr>
+            {/if}
+        {/foreach}
+    {/if}
+</table>
+
+{if $user->isAllowed('shifts', 'assign')}
+    <h2>Moje směny</h2>
+    <table>
+        <tr>
+            <th>
+                Datum
+            </th>
+            <th>
+                Čas
+            </th>
+            <th>
+                Pobočka
+            </th>
+            <th>
+                Akce
+            </th>
+        </tr>
+        {foreach $shiftsMine as $shift}
+            <tr>
+                <td>
+                    {$shift->date|date:'%d.%m.%Y'}
+                </td>
+                <td>
+                    {$shift->time|date:'%H:%I'}
+                </td>
+                <td>
+                    {$shift->name}
+                </td>                       
+                <td>
+                    {if $shift->status == 0}
+                        <a n:href="cancel! $shift->id">Zrušit směnu</a>
+                    {else}
+                        Směna potvrzena                            
+                    {/if}
+                        
+
+                </td>
+            </tr>
+        {/foreach}
+    </table>
+{/if}
+{/block}

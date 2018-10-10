@@ -1,0 +1,28 @@
+{block content}
+{control addFloor}
+<table>
+    <tr>
+        <th>
+            Jméno
+        </th>
+        <th>
+            Příjmení
+        </th>
+        <th>
+            Akce
+        </th>
+    </tr>
+    {foreach $floors as $floor}
+        <tr>
+            <td>
+                {$floor['firstname']}
+            </td>
+            <td>
+                {$floor['surname']}
+            </td>
+            <td>
+                <a n:href="revoke! $floor->id">Odebrat Floor status</a>
+            </td>
+        </tr>
+    {/foreach}
+</table>

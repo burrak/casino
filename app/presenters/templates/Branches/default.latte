@@ -1,0 +1,72 @@
+{block content}
+{if $user->isAllowed('branch', 'add')}
+    {control addBranchForm}
+{/if}
+<table class="tablesaw tablesaw-stack" data-tablesaw-mode="stack">
+    <thead>
+        <tr>
+            <th>
+                Název pobočky
+            </th>
+            <th>
+                Adresa
+            </th>
+            <th>
+                Telefon
+            </th>
+            {if $user->isAllowed('branch', 'add')}
+                <th>
+                    Akce
+                </th>
+            {/if}
+        </tr>
+    </thead>
+    <tbody>
+        {foreach $branches as $branch}
+            <tr>
+                <td>
+                    {$branch->name}
+                </td>
+
+                <td>
+                    <a href="https://www.google.com/maps/search/?api=1&query={$branch->lat},{$branch->lng}&query_place_id={$branch->place_id}" target="blank">{$branch->address}</a>
+                </td>
+
+                <td>
+                    <a href="tel: {$branch->phone}">{$branch->phone}</a>
+                </td>
+                {if $user->isAllowed('branch', 'add')}
+                    <td>
+                        <a n:href="delete! $branch->id" onclick="return confirm('Varování: Smazáním pobočky smažete všechny směny na této pobočce, včetně těch již zapsaných.')">Smazat pobočku</a>
+                    </td>
+                {/if}
+            </tr>
+        {/foreach}
+    </tbody>
+</table>
+<div id="map"></div>
+{include jsMap}
+{/block}
+
+{block jsMap}
+<script>
+    function initMap() {
+        // The location of Uluru
+        var prague = { lat: 50.08804, lng: 14.42076 }
+        let arr = {$coords|noescape};
+        var map = new google.maps.Map(
+                document.getElementById('map'), { zoom: 11, center: prague });
+        for (x in arr) {
+            var myLatLng = { lat: arr[x].lat, lng: arr[x].lng };
+            var marker = new google.maps.Marker({
+                position: myLatLng,
+                map: map,
+                title: arr[x].name
+            });
+        }
+
+        // The map, centered at Uluru
+
+    }
+</script>
+{/block}

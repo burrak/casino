@@ -1,0 +1,55 @@
+parameters:	
+
+database:
+	dsn: 'mysql:host=localhost;dbname='
+	user: ''
+	password: ''
+
+application:
+	errorPresenter: Error
+	mapping:
+		*: App\*Module\Presenters\*Presenter
+
+
+session:
+	expiration: 14 days
+
+
+
+extensions:
+    facebook: Contributte\Facebook\DI\Nette\FacebookExtension
+    
+facebook:
+    appId: ''
+    appSecret: ''
+
+
+services:
+        authenticator: App\Model\UserManager
+        router: App\RouterFactory::createRouter
+        - App\Model\ShiftsManager
+        - App\Model\FloorManager
+        - App\Model\BranchManager
+        - App\Model\Messages
+        acl:
+            factory: Nette\Security\Permission
+            setup:
+                - addRole(Admin)
+                - addRole(Head Manager)
+                - addRole(Manager)
+                - addRole(Floorman)
+                - addRole(Dealer)
+
+                - addResource(users)
+                - addResource(shifts)
+                - addResource(floor)
+                - addResource(branch)
+
+                - allow(Manager, shifts, add)
+                - allow(Manager, shifts, list)
+                - allow(Manager, floor, assign)
+                - allow(Manager, branch, add)
+
+                - allow(Floorman, shifts, list)
+                - allow(Dealer, shifts, assign)
+            

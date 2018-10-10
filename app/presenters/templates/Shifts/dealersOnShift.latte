@@ -1,0 +1,75 @@
+{block content}
+<p>Seznam dealerů na směně {$shiftInfo->datetime|date:'%d.%m.%Y'} od {$shiftInfo->datetime|date:'%R'} na pobočce {$shiftInfo->name}</p>
+<table>
+    <tr>
+        <th>
+            Jméno
+        </th>
+        <th>
+            Příjmení
+        </th>
+        <th>
+            Telefon
+        </th>
+        <th>
+            Status
+        </th>
+        <th>
+            Akce
+        </th>
+    </tr>
+    {foreach $dealers as $dealer}
+        {if $dealer->datetime > $now}
+        <tr>
+            <td>
+                {$dealer->firstname}
+            </td>
+            <td>
+                {$dealer->surname}
+            </td>
+            <td>
+                {$dealer->phone}
+            </td>
+            <td>
+                {if $dealer->status == 0}
+                    Nepotvrzeno
+                {elseif $dealer->status == 1}
+                    Potvrzeno
+                {/if}
+            <td>
+                {if $dealer->status == 0}
+                    <a n:href="confirm! $dealer->id_shift, $dealer->id_user, 1">Potvrdit</a> | <a n:href="cancelByManager! $dealer->id_shift, $dealer->id_user">Zamítnout</a>
+                {/if}
+                {if $dealer->status == 1}
+                    <a n:href="cancelByManager! $dealer->id_shift, $dealer->id_user">Zrušit směnu</a>
+                {/if}
+        </tr>
+        {/if}
+        
+        {if $dealer->datetime < $now}
+            {if $dealer->status > 0}
+        <tr>
+            <td>
+                {$dealer->firstname}
+            </td>
+            <td>
+                {$dealer->surname}
+            </td>
+            <td>
+                {$dealer->phone}
+            </td>
+            <td>
+                {if $dealer->status == 2}
+                    Dealer je na směně
+                {/if}
+            <td>
+                {if $dealer->status == 1}
+                    <a n:href="confirm! $dealer->id_shift, $dealer->id_user, 2">Potvrdit příchod</a>
+                {/if}
+        </tr>
+        {/if}
+        {/if}
+    {/foreach}
+</table>
+
+

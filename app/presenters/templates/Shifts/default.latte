@@ -1,0 +1,196 @@
+{block title}Směny{/block}
+{block content}
+<script>
+
+</script>
+<div class="col-12">
+    {if $user->isAllowed('shifts', 'add')}
+        {control addShiftForm}
+    {/if}
+    <h2>Všechny směny</h2>
+    Filtrovat:
+    {form filterForm}
+        {label branch /}
+        {input branch}
+
+        {label from /}
+        {input from}
+
+        {label to /}
+        {input to}
+    {/form}
+
+    {include jsBranch, branch => branch, from => from, to => to, link => filterShifts}
+
+    {snippet shifts}
+        <table class="tablesaw tablesaw-stack" data-tablesaw-mode="stack">
+            <thead>
+                <tr>
+                    <th>
+                        Datum
+                    </th>
+                    <th>
+                        Čas
+                    </th>
+                    <th>
+                        Pobočka
+                    </th>
+                    <th>
+                        Počet
+                    </th>
+                    {if ($user->isAllowed('shifts', 'add') || $user->isAllowed('shifts', 'list'))}
+                        <th>
+                            Zapsáno
+                        </th>
+                    {/if}
+                    {if $user->isAllowed('shifts', 'assign')}
+                        <th>
+                            Zbývá míst
+                        </th>
+                    {/if}
+                    <th>
+                        Akce
+                    </th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {if ($user->isAllowed('shifts', 'add') || $user->isAllowed('shifts', 'list'))}        
+                    {foreach $shifts as $shift}           
+                        <tr>
+                            <td>
+                                {$shift->datetime|date:'%d.%m.%Y'}
+                            </td>
+                            <td>
+                                {$shift->datetime|date:'%R'}
+                            </td>
+                            <td>
+                                {$shift->name}
+                            </td>
+                            <td>
+                                {if $user->isAllowed('shifts', 'add')}
+                                    {if $shift->datetime > $now}
+                                        {form edit}<input type="text" name="quant[{$shift->id}]" size="2" value="{$shift->quantity}"><input type="submit" value="Upravit počet">{/form}
+                                    {/if}
+                                    {if $shift->datetime < $now}
+                                        Směnu již nelze editovat
+                                    {/if}
+                                {else}
+                                    {$shift->quantity}
+                                {/if}
+                            </td>
+                            <td>
+                                {$shift->assigned}
+                            </td>
+                            <td>
+                                <a n:href="dealersOnShift $shift->id">Zobrazit dealery na směně</a> {if ($shift->datetime > $now && $user->isAllowed('shifts', 'add'))}| <a n:href="delete! $shift->id">Smazat směny</a>{/if}
+                            </td>
+                        </tr>
+                    {/foreach}
+                {/if}  
+
+                {if $user->isAllowed('shifts', 'assign')}
+                    {foreach $shiftsAviable as $shift}
+                        {if $shift->quantity-$shift->assigned > 0}
+                            <tr>
+                                <td>
+                                    {$shift->datetime|date:'%d.%m.%Y'}
+                                </td>
+                                <td>
+                                    {$shift->datetime|date:'%R'}
+                                </td>
+                                <td>
+                                    {$shift->name}
+                                </td>
+                                <td>
+                                    {$shift->quantity}   
+                                </td>
+                                <td>
+                                    {$shift->quantity-$shift->assigned} 
+                                </td>
+                                <td>
+                                    {if $shift->id_user == NULL}
+                                        <a n:href="assign! $shift->id">Zapsat směnu</a>
+                                    {else}
+                                        Směnu již máte zapsanou
+                                    {/if}
+                                </td>
+                            </tr>
+                        {/if}
+                    {/foreach}
+                {/if}
+            </tbody>   
+            {include tableRefresh}
+        </table>
+    {/snippet}
+
+
+
+    {if $user->isAllowed('shifts', 'assign')}
+        <h2>Moje směny</h2>
+        <table class="tablesaw tablesaw-stack" data-tablesaw-mode="stack">
+            <thead>
+                <tr>
+                    <th>
+                        Datum
+                    </th>
+                    <th>
+                        Čas
+                    </th>
+                    <th>
+                        Pobočka
+                    </th>
+                    <th>
+                        Akce
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                {foreach $shiftsMine as $shift}
+                    <tr>
+                        <td>
+                            {$shift->datetime|date:'%d.%m.%Y'}
+                        </td>
+                        <td>
+                            {$shift->datetime|date:'%R'}
+                        </td>
+                        <td>
+                            {$shift->name}
+                        </td>                       
+                        <td>
+                            {if $shift->status == 0}
+                                <a n:href="cancel! $shift->id">Zrušit směnu</a>
+                            {else}
+                                Směna potvrzena                            
+                            {/if}
+
+
+                        </td>
+                    </tr>
+                {/foreach}
+            </tbody>
+        </table>
+    {/if}
+</div>
+{/block}
+{block jsBranch}
+<script>
+    $('#' + "frm-filterForm").off('change').on('change', function () {
+        $.nette.ajax({
+            type: 'GET',
+            url: {link {$link}!},
+            data: {
+                'branch': $(document.getElementById({$control["filterForm"]["$branch"]->htmlId})).val(),
+                'from': $(document.getElementById({$control["filterForm"]["$from"]->htmlId})).val(),
+                'to': $(document.getElementById({$control["filterForm"]["$to"]->htmlId})).val(),
+            }
+        });
+    });
+</script>
+{/block}
+
+{block tableRefresh}
+<script>
+    Tablesaw.init();
+</script>
+{/block}

@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+        <link rel="stylesheet" type="text/css" href="{$basePath}/css/style.css">
+        <link rel="stylesheet" type="text/css" href="{$basePath}/css/tablesaw.css">
+
+        <script type="text/javascript" src="{$basePath}/js/jquery.js"></script>
+        <script type="text/javascript" src="{$basePath}/js/tablesaw.jquery.js"></script>
+        <script type="text/javascript" src="{$basePath}/js/tablesaw-init.js"></script>   
+        <script type="text/javascript" src="{$basePath}/js/nette.ajax.js"></script>
+        <script type="text/javascript" src="{$basePath}/js/netteForms.js"></script>
+        <script type="text/javascript" src="{$basePath}/js/main.js"></script>
+
+
+
+        <title>{ifset title}{include title|stripHtml} | {/ifset}Shift Manager</title>
+    </head>
+
+    <body>
+        <div n:foreach="$flashes as $flash" n:class="flash, $flash->type">{$flash->message}</div>
+        <div n:class="header">
+            {if $user->isLoggedIn()}
+                Přihlášen jako: {$user->getIdentity()->firstname}&nbsp;{$user->getIdentity()->surname}&nbsp;({$user->getIdentity()->role})
+            {/if}
+        </div>
+        <div n:class="menu">
+            {if $user->isLoggedIn()}
+                <a n:href="Shifts:">Směny</a>
+                <a n:href="Messages:">Zprávy</a>
+                {if $user->isAllowed('floor', 'assign')}
+                    <a n:href="Floor:">Floor staff</a>
+                {/if}
+                <a n:href="Branches:">Pobočky</a>
+                <a n:href="Homepage:logout">Odhlásit</a>
+            {/if}
+        </div>
+        {include content}
+
+        {block scripts}
+        <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAbkVb-r49-oyjjvDa_yb2VipF9i8Ztciw&callback=initMap"></script>
+        {/block}
+    </body>
+</html>
